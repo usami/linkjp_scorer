@@ -13,6 +13,7 @@ class Category(Enum):
     def __str__(self):
         return self.value
 
+
 def set(category):
     if category == Category.AIRPORT:
         return ["別名", "旧称", "国", "所在地", "母都市", "近隣空港", "運営者", "名前の謂れ",

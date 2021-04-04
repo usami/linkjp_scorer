@@ -1,3 +1,4 @@
+from enum import Enum
 import csv
 import sys
 
@@ -30,6 +31,13 @@ class Score:
                 (self.precision + self.recall)
 
 
+class OutputFormat(Enum):
+    CSV = 'csv'
+
+    def __str__(self):
+        return self.value
+
+
 class Scorer:
 
     def __init__(self, category):
@@ -41,8 +49,8 @@ class Scorer:
         for attr in self.attributes:
             self.score[attr] = Score(0.0, 0.0)
 
-    def print_score(self, format='csv', out=sys.stdout):
-        if format == 'csv':
+    def print_score(self, output_format='csv', out=sys.stdout):
+        if output_format == OutputFormat.CSV:
             scorewriter = csv.writer(out, quoting=csv.QUOTE_MINIMAL)
             scorewriter.writerow(['属性名', '精度', '再現率', 'F値'])
             for attr in self.attributes:

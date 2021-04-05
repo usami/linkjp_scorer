@@ -1,22 +1,28 @@
+from collections import defaultdict
 from enum import Enum
 import csv
 import sys
 
 from . import attributes
+from .helpers import load_json, generate_key, link_annotation
 
 
 class Counter:
 
     def __init__(self):
-        self.tp = 0
-        self.target = 0
-        self.linked = 0
+        self.correct_links = 0
+        self.gold_links = 0
+        self.answered_links = 0
 
     def precision(self):
-        return self.tp / self.linked
+        if self.answered_links == 0:
+            return 0
+        return self.correct_links / self.answered_links
 
     def recall(self):
-        return self.tp / self.target
+        if self.gold_links == 0:
+            return 0
+        return self.correct_links / self.gold_links
 
 
 class Score:
@@ -40,16 +46,47 @@ class OutputFormat(Enum):
 
 class Scorer:
 
-    def __init__(self, category):
+    def __init__(self, category, goldpath, answerpath):
         self.category = category
         self.attributes = attributes.set(category)
+        self.goldpath = goldpath
+        self.answerpath = answerpath
+        self.counter = {attr: Counter() for attr in self.attributes}
         self.score = {}
 
-    def calc_score(self):
-        for attr in self.attributes:
-            self.score[attr] = Score(0.0, 0.0)
+        self.load_gold_data()
 
-    def print_score(self, output_format='csv', out=sys.stdout):
+    def load_gold_data(self):
+        self.gold = {}
+        for d in load_json(self.goldpath):
+            self.gold[generate_key(d, 'html')] = link_annotation(d)
+            self.gold[generate_key(d, 'text')] = link_annotation(d)
+            self.counter[d['attribute']].gold_links += 1
+
+    def calc_score(self):
+        self.evaluate_answers()
+        for attr in self.attributes:
+            c = self.counter[attr]
+            self.score[attr] = Score(c.precision(), c.recall())
+
+    def evaluate_answers(self):
+        for a in load_json(self.answerpath):
+            if self.evaluate(link_annotation(a),
+                             self.gold.get(generate_key(a), None),
+                             ignore_link_type=True):
+                self.counter[a['attribute']].correct_links += 1
+            self.counter[a['attribute']].answered_links += 1
+
+    def evaluate(self, answer, gold, ignore_link_type=False):
+        if gold is None:
+            return False
+
+        if ignore_link_type:
+            return answer[0] == gold[0]
+        else:
+            return answer == gold
+
+    def print_score(self, output_format, out=sys.stdout):
         if output_format == OutputFormat.CSV:
             scorewriter = csv.writer(out, quoting=csv.QUOTE_MINIMAL)
             scorewriter.writerow(['属性名', '精度', '再現率', 'F値'])
@@ -63,9 +100,9 @@ class Scorer:
 
 def micro_average(counters):
     total = Counter()
-    total.tp = sum(c.tp for c in counters)
-    total.target = sum(c.target for c in counters)
-    total.linked = sum(c.linked for c in counters)
+    total.correct_links = sum(c.correct_links for c in counters)
+    total.gold_links = sum(c.gold_links for c in counters)
+    total.answered_links = sum(c.answered_links for c in counters)
     return Score(total.precision, total.recall)
 
 

@@ -62,17 +62,17 @@ class Scorer:
             self.gold[generate_key(d, 'text')] = link_annotation(d)
             self.counter[d['attribute']].gold_links += 1
 
-    def calc_score(self):
-        self.evaluate_answers()
+    def calc_score(self, ignore_link_type=False):
+        self.evaluate_answers(ignore_link_type)
         for attr in self.attributes:
             c = self.counter[attr]
             self.score[attr] = Score(c.precision(), c.recall())
 
-    def evaluate_answers(self):
+    def evaluate_answers(self, ignore_link_type=False):
         for a in load_json(self.answerpath):
             if self.evaluate(link_annotation(a),
                              self.gold.get(generate_key(a), None),
-                             ignore_link_type=True):
+                             ignore_link_type=ignore_link_type):
                 self.counter[a['attribute']].correct_links += 1
             self.counter[a['attribute']].answered_links += 1
 

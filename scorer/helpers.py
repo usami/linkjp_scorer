@@ -34,3 +34,15 @@ def link_annotation(data):
                 data['link_type']['derivation_of'])
     else:
         return (data['link_page_id'], False, False, False)
+
+
+def csv_format(header, score):
+    return [header,
+            "{:.3f}".format(score.precision),
+            "{:.3f}".format(score.recall),
+            "{:.3f}".format(score.f1)]
+
+
+def table_format(header, score):
+    return '{:<6.3f} {:<6.3f} {:<6.3f} {}'.format(
+        score.precision, score.recall, score.f1, header)

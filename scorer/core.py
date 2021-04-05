@@ -3,7 +3,8 @@ import csv
 import sys
 
 from . import attributes
-from .helpers import load_json, generate_key, link_annotation
+from .helpers import load_json, generate_key, link_annotation,\
+    csv_format, table_format
 
 
 class Counter:
@@ -94,35 +95,19 @@ class Scorer:
             scorewriter = csv.writer(out, quoting=csv.QUOTE_MINIMAL)
             scorewriter.writerow(['属性名', '精度', '再現率', 'F値'])
             for attr in self.attributes:
-                score = self.score[attr]
-                scorewriter.writerow([attr,
-                                      "{:.3f}".format(score.precision),
-                                      "{:.3f}".format(score.recall),
-                                      "{:.3f}".format(score.f1)])
-            scorewriter.writerow(['macro-average',
-                                  "{:.3f}".format(macro.precision),
-                                  "{:.3f}".format(macro.recall),
-                                  "{:.3f}".format(macro.f1)])
+                scorewriter.writerow(csv_format(attr, self.score[attr]))
 
-            scorewriter.writerow(['micro-average',
-                                  "{:.3f}".format(micro.precision),
-                                  "{:.3f}".format(micro.recall),
-                                  "{:.3f}".format(micro.f1)])
+            scorewriter.writerow(csv_format('macro-average', macro))
+            scorewriter.writerow(csv_format('micro-average', micro))
 
         elif output_format == OutputFormat.TABLE:
             print('{:<4} {} {:<5} {}'.format(
                 '精度', '再現率', 'F値', '属性名'), file=out)
             for attr in self.attributes:
-                score = self.score[attr]
-                print('{:<6.3f} {:<6.3f} {:<6.3f} {}'.format(
-                    score.precision, score.recall, score.f1, attr), file=out)
+                print(table_format(attr, self.score[attr]), file=out)
 
-            print('{:<6.3f} {:<6.3f} {:<6.3f} {}'.format(
-                macro.precision, macro.recall, macro.f1, 'macro-average'),
-                file=out)
-            print('{:<6.3f} {:<6.3f} {:<6.3f} {}'.format(
-                micro.precision, micro.recall, micro.f1, 'micro-average'),
-                file=out)
+            print(table_format('macro-average', macro), file=out)
+            print(table_format('micro-average', micro), file=out)
 
 
 def micro_average(counters):

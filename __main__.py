@@ -17,10 +17,15 @@ if __name__ == '__main__':
                         help='ignore link_type on evaluation,'
                         ' and eveluate only with link_page_id.',
                         action='store_true', default=False)
+    parser.add_argument('--output', help='write output to the specified path.')
 
     args = parser.parse_args()
 
     scorer = Scorer(args.category, args.gold, args.answer)
     scorer.calc_score(args.ignore_link_type)
 
-    scorer.print_score(args.format)
+    if args.output:
+        with open(args.output, 'w') as f:
+            scorer.print_score(args.format, out=f)
+    else:
+        scorer.print_score(args.format)

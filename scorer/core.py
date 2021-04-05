@@ -1,4 +1,3 @@
-from collections import defaultdict
 from enum import Enum
 import csv
 import sys
@@ -96,6 +95,17 @@ class Scorer:
                                       "{:.3f}".format(score.precision),
                                       "{:.3f}".format(score.recall),
                                       "{:.3f}".format(score.f1)])
+            macro = macro_average(self.score.values())
+            scorewriter.writerow(['macro-average',
+                                  "{:.3f}".format(macro.precision),
+                                  "{:.3f}".format(macro.recall),
+                                  "{:.3f}".format(macro.f1)])
+
+            micro = micro_average(self.counter.values())
+            scorewriter.writerow(['micro-average',
+                                  "{:.3f}".format(micro.precision),
+                                  "{:.3f}".format(micro.recall),
+                                  "{:.3f}".format(micro.f1)])
 
 
 def micro_average(counters):
@@ -103,7 +113,7 @@ def micro_average(counters):
     total.correct_links = sum(c.correct_links for c in counters)
     total.gold_links = sum(c.gold_links for c in counters)
     total.answered_links = sum(c.answered_links for c in counters)
-    return Score(total.precision, total.recall)
+    return Score(total.precision(), total.recall())
 
 
 def macro_average(scores):

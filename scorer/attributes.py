@@ -15,6 +15,7 @@ class Category(Enum):
 
 
 def set(category):
+    """Return the list of attributes for the given category."""
     if category == Category.AIRPORT:
         return ["別名", "旧称", "国", "所在地", "母都市", "近隣空港", "運営者", "名前の謂れ",
                 "名称由来人物の地位職業名"]

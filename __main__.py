@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--format', help='specify output format.',
                         type=OutputFormat, choices=list(OutputFormat),
-                        default=OutputFormat.CSV)
+                        default=OutputFormat.TABLE)
     parser.add_argument('--ignore-link-type',
                         help='ignore link_type on evaluation,'
                         ' and eveluate only with link_page_id.',
@@ -26,6 +26,6 @@ if __name__ == '__main__':
 
     if args.output:
         with open(args.output, 'w') as f:
-            scorer.print_score(args.format, out=f)
+            scorer.print_score(output_format=args.format, out=f)
     else:
-        scorer.print_score(args.format)
+        scorer.print_score(output_format=args.format)

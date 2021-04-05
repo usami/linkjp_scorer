@@ -7,6 +7,13 @@ def load_json(filename):
 
 
 def generate_key(data, offset_type=None):
+    """Retrun a lookup key for the data.
+    The specified offset type is used to generate a key.
+    If the offset type is None, it uses text offset if exists.
+
+    Keyword argument:
+    offset_type -- the offset type (text, html) (defaut: None)
+    """
     if offset_type == 'text' or (offset_type is None and
                                  'text_offset' in data):
         return '{}:{}:text:{}'.format(data['attribute'],

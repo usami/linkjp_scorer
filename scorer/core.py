@@ -54,23 +54,39 @@ class Scorer:
         self.answerpath = answerpath
         self.counter = {attr: Counter() for attr in self.attributes}
         self.score = {}
+        self.gold = {}
 
         self.load_gold_data()
 
     def load_gold_data(self):
-        self.gold = {}
+        """Load the gold data into the scorer for easier lookup, and
+        count the number of links in the gold data for each attribute.
+        """
+
         for d in load_json(self.goldpath):
             self.gold[generate_key(d, 'html')] = link_annotation(d)
             self.gold[generate_key(d, 'text')] = link_annotation(d)
             self.counter[d['attribute']].gold_links += 1
 
     def calc_score(self, ignore_link_type=False):
+        """Calculate scores for the target attributes.
+
+        Keyword argument:
+        ignore_link_type -- ignore link type fields (default: False)
+        """
+
         self.evaluate_answers(ignore_link_type)
         for attr in self.attributes:
             c = self.counter[attr]
             self.score[attr] = Score(c.precision(), c.recall())
 
     def evaluate_answers(self, ignore_link_type=False):
+        """Evaluate answers and store answer counts.
+
+        Keyword argument:
+        ignore_link_type -- ignore link type fields (default: False)
+        """
+
         for a in load_json(self.answerpath):
             if self.evaluate(link_annotation(a),
                              self.gold.get(generate_key(a), None),
@@ -79,6 +95,12 @@ class Scorer:
             self.counter[a['attribute']].answered_links += 1
 
     def evaluate(self, answer, gold, ignore_link_type=False):
+        """Return True if the answer is correct.
+
+        Keyword argument:
+        ignore_link_type -- ignore link type fields (default: False)
+        """
+
         if gold is None:
             return False
 
@@ -87,7 +109,15 @@ class Scorer:
         else:
             return answer == gold
 
-    def print_score(self, output_format, out=sys.stdout):
+    def print_score(self, output_format=OutputFormat.TABLE, out=sys.stdout):
+        """Print scores for the target attributes along with
+        macro and micro averages.
+
+        Keyword arguments:
+        output_format -- the output format (default: OutputFormat.TABLE)
+        out -- the output stream (default: sys.stdout)
+        """
+
         macro = macro_average(self.score.values())
         micro = micro_average(self.counter.values())
 
@@ -111,6 +141,7 @@ class Scorer:
 
 
 def micro_average(counters):
+    """Return the micro average score."""
     total = Counter()
     total.correct_links = sum(c.correct_links for c in counters)
     total.gold_links = sum(c.gold_links for c in counters)
@@ -119,6 +150,7 @@ def micro_average(counters):
 
 
 def macro_average(scores):
+    """Return the macro average score."""
     n = len(scores)
     ave_p = sum(s.precision for s in scores) / n
     ave_r = sum(s.recall for s in scores) / n

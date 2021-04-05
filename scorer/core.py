@@ -38,6 +38,7 @@ class Score:
 
 class OutputFormat(Enum):
     CSV = 'csv'
+    TABLE = 'table'
 
     def __str__(self):
         return self.value
@@ -86,6 +87,9 @@ class Scorer:
             return answer == gold
 
     def print_score(self, output_format, out=sys.stdout):
+        macro = macro_average(self.score.values())
+        micro = micro_average(self.counter.values())
+
         if output_format == OutputFormat.CSV:
             scorewriter = csv.writer(out, quoting=csv.QUOTE_MINIMAL)
             scorewriter.writerow(['属性名', '精度', '再現率', 'F値'])
@@ -95,17 +99,30 @@ class Scorer:
                                       "{:.3f}".format(score.precision),
                                       "{:.3f}".format(score.recall),
                                       "{:.3f}".format(score.f1)])
-            macro = macro_average(self.score.values())
             scorewriter.writerow(['macro-average',
                                   "{:.3f}".format(macro.precision),
                                   "{:.3f}".format(macro.recall),
                                   "{:.3f}".format(macro.f1)])
 
-            micro = micro_average(self.counter.values())
             scorewriter.writerow(['micro-average',
                                   "{:.3f}".format(micro.precision),
                                   "{:.3f}".format(micro.recall),
                                   "{:.3f}".format(micro.f1)])
+
+        elif output_format == OutputFormat.TABLE:
+            print('{:<4} {} {:<5} {}'.format(
+                '精度', '再現率', 'F値', '属性名'), file=out)
+            for attr in self.attributes:
+                score = self.score[attr]
+                print('{:<6.3f} {:<6.3f} {:<6.3f} {}'.format(
+                    score.precision, score.recall, score.f1, attr), file=out)
+
+            print('{:<6.3f} {:<6.3f} {:<6.3f} {}'.format(
+                macro.precision, macro.recall, macro.f1, 'macro-average'),
+                file=out)
+            print('{:<6.3f} {:<6.3f} {:<6.3f} {}'.format(
+                micro.precision, micro.recall, micro.f1, 'micro-average'),
+                file=out)
 
 
 def micro_average(counters):

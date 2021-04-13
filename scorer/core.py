@@ -139,6 +139,11 @@ class Scorer:
             print(table_format('macro-average', macro), file=out)
             print(table_format('micro-average', micro), file=out)
 
+    def link_type_available(self):
+        """Return True if link type field is available in the answer data."""
+        a = load_json(self.answerpath)[0]
+        return 'link_type' in a
+
 
 def micro_average(counters):
     """Return the micro average score."""

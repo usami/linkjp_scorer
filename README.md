@@ -32,19 +32,19 @@ Download a sample data from [the task page](http://shinra-project.info/shinra202
 and run the scorer against the baseline data.
 
 ```
-$ python linkjp_scorer airport path-to-sample-data/link_annotation/Airport.json linkjp_scorer/data/baseline/airport.json
-精度   再現率 F値    属性名
-0.000  0.000  0.000  別名
-0.000  0.000  0.000  旧称
-1.000  0.793  0.885  国
-1.000  0.298  0.459  所在地
-1.000  0.583  0.737  母都市
-1.000  0.464  0.634  近隣空港
-0.429  0.273  0.333  運営者
-1.000  1.000  1.000  名前の謂れ
-0.000  0.000  0.000  名称由来人物の地位職業名
-0.603  0.379  0.466  macro-average
-0.939  0.309  0.465  micro-average
+$ python linkjp_scorer airport --ignore-link-type path-to-sample-data/link_annotation/Airport.json linkjp_scorer/data/baseline/airport.json
+precision  recall  f1-score  attribute
+    0.000   0.000     0.000  別名
+    0.000   0.000     0.000  旧称
+    1.000   0.793     0.885  国
+    1.000   0.298     0.459  所在地
+    1.000   0.583     0.737  母都市
+    1.000   0.464     0.634  近隣空港
+    0.929   0.591     0.722  運営者
+    1.000   1.000     1.000  名前の謂れ
+    0.000   0.000     0.000  名称由来人物の地位職業名
+    0.659   0.414     0.509  macro-average
+    0.986   0.324     0.488  micro-average
 ```
 
 ## Use as a Python Module

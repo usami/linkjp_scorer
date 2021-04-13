@@ -131,8 +131,8 @@ class Scorer:
             scorewriter.writerow(csv_format('micro-average', micro))
 
         elif output_format == OutputFormat.TABLE:
-            print('{:<4} {} {:<5} {}'.format(
-                '精度', '再現率', 'F値', '属性名'), file=out)
+            print('{}  {}  {}  {}'.format(
+                'precision', 'recall', 'f1-score', 'attribute'), file=out)
             for attr in self.attributes:
                 print(table_format(attr, self.score[attr]), file=out)
 

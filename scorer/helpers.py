@@ -51,5 +51,5 @@ def csv_format(header, score):
 
 
 def table_format(header, score):
-    return '{:<6.3f} {:<6.3f} {:<6.3f} {}'.format(
+    return '{:>9.3f} {:>7.3f} {:>9.3f}  {}'.format(
         score.precision, score.recall, score.f1, header)

@@ -2,6 +2,8 @@
 
 A scorer for [SHINRA2021-LinkJP Task](http://shinra-project.info/shinra2021linkjp/).
 
+[![usami](https://circleci.com/gh/usami/linkjp_scorer.svg?style=svg)](https://app.circleci.com/pipelines/github/usami/linkjp_scorer)
+
 ## Usage
 
 ```

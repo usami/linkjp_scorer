@@ -3,7 +3,17 @@ import json
 
 def load_json(filename):
     with open(filename) as f:
-        return [json.loads(line) for line in f.readlines()]
+        for line in f:
+            yield json.loads(line)
+
+
+def deduped_answers(answers):
+    seen = set([])
+    for a in answers:
+        key = generate_key(a)
+        if key not in seen:
+            seen.add(key)
+            yield a
 
 
 def generate_key(data, offset_type=None):

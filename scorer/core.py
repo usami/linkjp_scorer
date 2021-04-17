@@ -3,8 +3,8 @@ import csv
 import sys
 
 from . import attributes
-from .helpers import load_json, generate_key, link_annotation,\
-    csv_format, table_format
+from .helpers import load_json, deduped_answers, generate_key,\
+    link_annotation, csv_format, table_format
 
 
 class Counter:
@@ -87,7 +87,7 @@ class Scorer:
         ignore_link_type -- ignore link type fields (default: False)
         """
 
-        for a in load_json(self.answerpath):
+        for a in deduped_answers(load_json(self.answerpath)):
             if self.evaluate(link_annotation(a),
                              self.gold.get(generate_key(a), None),
                              ignore_link_type=ignore_link_type):

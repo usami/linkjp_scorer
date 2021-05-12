@@ -17,7 +17,7 @@ def deduped_answers(answers):
 
 
 def generate_key(data, offset_type=None):
-    """Retrun a lookup key for the data.
+    """Retrun a tuple of a lookup key and offset type for the data.
     The specified offset type is used to generate a key.
     If the offset type is None, it uses text offset if exists.
 
@@ -26,13 +26,15 @@ def generate_key(data, offset_type=None):
     """
     if offset_type == 'text' or (offset_type is None and
                                  'text_offset' in data):
-        return '{}:{}:text:{}'.format(data['attribute'],
-                                      data['page_id'],
-                                      offset_tuple(data['text_offset']))
+        key = '{}:{}:{}'.format(data['attribute'],
+                                data['page_id'],
+                                offset_tuple(data['text_offset']))
+        return (key, 'text')
     elif offset_type == 'html':
-        return '{}:{}:html:{}'.format(data['attribute'],
-                                      data['page_id'],
-                                      offset_tuple(data['html_offset']))
+        key = '{}:{}:html:{}'.format(data['attribute'],
+                                     data['page_id'],
+                                     offset_tuple(data['html_offset']))
+        return (key, 'html')
     else:
         return None
 

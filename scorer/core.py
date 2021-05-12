@@ -1,3 +1,4 @@
+from collections import defaultdict
 from enum import Enum
 import csv
 import sys
@@ -54,7 +55,8 @@ class Scorer:
         self.answerpath = answerpath
         self.counter = {attr: Counter() for attr in self.attributes}
         self.score = {}
-        self.gold = {}
+        self.text_gold = defaultdict(set)
+        self.html_gold = defaultdict(set)
 
         self.load_gold_data()
 
@@ -64,9 +66,14 @@ class Scorer:
         """
 
         for d in load_json(self.goldpath):
-            self.gold[generate_key(d, 'html')] = link_annotation(d)
-            self.gold[generate_key(d, 'text')] = link_annotation(d)
-            self.counter[d['attribute']].gold_links += 1
+            text_key, _ = generate_key(d, 'text')
+            html_key, _ = generate_key(d, 'html')
+
+            if len(self.text_gold[text_key]) == 0:
+                self.counter[d['attribute']].gold_links += 1
+
+            self.text_gold[text_key] |= {link_annotation(d)}
+            self.html_gold[html_key] |= {link_annotation(d)}
 
     def calc_score(self, ignore_link_type=False):
         """Calculate scores for the target attributes.
@@ -88,8 +95,10 @@ class Scorer:
         """
 
         for a in deduped_answers(load_json(self.answerpath)):
+            key, ot = generate_key(a)
+            gold = self.text_gold[key] if ot == 'text' else self.html_gold[key]
             if self.evaluate(link_annotation(a),
-                             self.gold.get(generate_key(a), None),
+                             gold,
                              ignore_link_type=ignore_link_type):
                 self.counter[a['attribute']].correct_links += 1
             self.counter[a['attribute']].answered_links += 1
@@ -105,9 +114,9 @@ class Scorer:
             return False
 
         if ignore_link_type:
-            return answer[0] == gold[0]
+            return answer[0] in [g[0] for g in gold]
         else:
-            return answer == gold
+            return answer in gold
 
     def print_score(self, output_format=OutputFormat.TABLE, out=sys.stdout):
         """Print scores for the target attributes along with
